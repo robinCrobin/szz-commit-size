@@ -1,0 +1,9 @@
+szz_name: "ma"
+szz_variant: "ma"
+file_ext_to_parse:
+  - "py"
+only_deleted_lines: true
+issue_date_filter: false
+max_change_size: 999999
+detect_move_from_other_files: 1
+filter_revert_commits: true

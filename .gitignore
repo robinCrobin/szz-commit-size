@@ -1,0 +1,105 @@
+# ─────────────────────────────────────────────
+# Virtualenvs
+# ─────────────────────────────────────────────
+venv_szz/
+.venv/
+venv/
+env/
+ENV/
+
+# ─────────────────────────────────────────────
+# Repositórios clonados pelo step1 (4+ GB)
+# ─────────────────────────────────────────────
+repos/
+
+# ─────────────────────────────────────────────
+# Diretório temporário do pySZZ (clones efêmeros)
+# ─────────────────────────────────────────────
+_szztemp/
+**/_szztemp/
+
+# ─────────────────────────────────────────────
+# Python build/cache
+# ─────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ─────────────────────────────────────────────
+# IDEs / Editores
+# ─────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ─────────────────────────────────────────────
+# Sistema operacional
+# ─────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─────────────────────────────────────────────
+# Logs
+# ─────────────────────────────────────────────
+*.log
+pyszz/_run.log
+
+# ─────────────────────────────────────────────
+# Dados intermediários e saídas (regeneráveis pelo pipeline)
+# ─────────────────────────────────────────────
+
+# Fonte: gerada externamente, grande (~28 MB).
+# Compartilhar fora do git (Drive, OneDrive, transfer.sh).
+commits_clean.csv
+
+# Gerados por step1_adaptar_csv.py
+szz_data/all_commits_loc.json
+szz_data/bugfix_commits.json
+szz_data/bugfix_commits_*.json
+
+# Saídas do pySZZ (gerados em main.py)
+pyszz/out/
+pyszz/output_raszz.json
+
+# Saídas do step3 (gerados ao cruzar SZZ com all_commits_loc)
+szz_data/commits_classificados*.csv
+szz_data/resumo_por_repo*.csv
+
+# Saídas do step4 (gráficos e CSVs de resultado)
+szz_data/resultados/
+
+# ─────────────────────────────────────────────
+# Testes do pySZZ upstream (zips grandes, não modificados)
+# ─────────────────────────────────────────────
+pyszz/test/**/*.zip
+pyszz/test/*.zip
+
+# ─────────────────────────────────────────────
+# Configurações locais do Claude Code
+# ─────────────────────────────────────────────
+.claude/
+
+# ─────────────────────────────────────────────
+# Secrets / config local
+# ─────────────────────────────────────────────
+.env
+.env.local
+*.pem
+*.key
+secrets.yml
+
+# ─────────────────────────────────────────────
+# Notebooks (caches)
+# ─────────────────────────────────────────────
+.ipynb_checkpoints/
