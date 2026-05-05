@@ -53,7 +53,9 @@ desktop.ini
 # Logs
 # ─────────────────────────────────────────────
 *.log
+*.log.crash*
 pyszz/_run.log
+pyszz/_run.err.log
 
 # ─────────────────────────────────────────────
 # Dados intermediários e saídas (regeneráveis pelo pipeline)
