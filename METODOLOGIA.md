@@ -165,6 +165,7 @@ Seguindo a taxonomia de **Wohlin et al. (2012)**:
 
 - **Apenas Python**, apenas **GitHub**, apenas **projetos populares**. Generalizações para outras linguagens, ecossistemas (npm, Maven privados) ou enterprise software requerem estudos adicionais.
 - **Janela temporal**: analisamos o histórico completo dos repositórios; mudanças em práticas de engenharia ao longo dos anos podem afetar o sinal (estilos de commit modernos vs antigos).
+- **Repositórios excluídos por incompatibilidade de execução**: 2 dos 60 repositórios originais ficaram fora da análise final — `pytorch/pytorch` (incompatibilidade NTFS/case-sensitivity em Windows) e `Significant-Gravitas/AutoGPT` (erros recorrentes do SZZ). Detalhes em §7.5. O universo efetivo é portanto **58 repositórios**.
 
 ### 5.3 Validade de constructo
 
@@ -274,20 +275,30 @@ Rodar todos os fixes seria inviável. Optou-se pela **estratégia de cap aleató
 
 A divisão de trabalho prevista é de **30 repositórios por colaborador** (total ≈ 60 com a outra pessoa). Os arquivos de configuração compartilhados (`bugfix_commits.json`, `all_commits_loc.json`) garantem que ambas as execuções usem o mesmo universo.
 
-### 7.5 Incidente: pytorch/pytorch (filesystem incompatível)
+### 7.5 Incidentes: repositórios excluídos (pytorch e AutoGPT)
 
-**Incidente.** Durante a rodada principal, o processo abortou em 2026-05-05 às 07:52:33 ao tentar clonar `pytorch/pytorch` no diretório temporário do SZZ. O log mostrou:
+Durante a execução, **dois repositórios** apresentaram problemas e foram excluídos da análise:
+
+#### 7.5.1 pytorch/pytorch (incompatibilidade de filesystem)
+
+**Incidente.** O processo abortou em 2026-05-05 às 07:52:33 ao tentar clonar `pytorch/pytorch` no diretório temporário do SZZ:
 
 ```
 fatal: unable to checkout working tree
 warning: Clone succeeded, but checkout failed.
 ```
 
-**Diagnóstico.** O repositório `pytorch/pytorch` contém arquivos cuja diferença está **apenas em maiúsculas/minúsculas** (e.g., `aten/src/.../foo.cpp` vs `aten/src/.../FOO.cpp`). O sistema de arquivos NTFS do Windows é **case-insensitive** por padrão, o que causa colisão durante o `git checkout`. O clone original em `repos/pytorch/pytorch` permaneceu intacto (operação prévia de `step1_adaptar_csv.py`); a falha foi exclusivamente no clone interno do SZZ via `Repo.clone_from(... '--local')`, que recria a árvore de trabalho.
+**Diagnóstico.** O repositório `pytorch/pytorch` contém arquivos cuja diferença está **apenas em maiúsculas/minúsculas** (e.g., `aten/src/.../foo.cpp` vs `aten/src/.../FOO.cpp`). O sistema de arquivos NTFS do Windows é **case-insensitive** por padrão, o que causa colisão durante o `git checkout`. O clone original em `repos/pytorch/pytorch` permaneceu intacto; a falha foi exclusivamente no clone interno do SZZ via `Repo.clone_from(... '--local')`, que recria a árvore de trabalho.
 
-**Resolução.** O repositório `pytorch/pytorch` foi **excluído da análise** após autorização explícita ("se continuar dando muito erro, apenas anote que esse repositório apresentou problemas e vai ser deixado fora da análise"). Tentativas de contornar (habilitar `core.protectNTFS=false`, mover para WSL) foram avaliadas e rejeitadas pelo custo-benefício, dado que (a) `pytorch` representava apenas 100 fixes no plano amostrado (cap), e (b) a hipótese é robusta o suficiente para que a perda de 1 repo de 60 não comprometa a inferência.
+#### 7.5.2 Significant-Gravitas/AutoGPT (erros de execução)
 
-**Limitação declarada.** O fato de pytorch/pytorch não ter sido analisado é uma **limitação de validade externa específica para a infraestrutura Windows/NTFS**. Em sistemas Linux/macOS (case-sensitive por padrão), o repo seria processado normalmente. Esta limitação é citada na §5.2.
+**Incidente.** Durante o run do colaborador na fase de coleta paralela, o repositório `Significant-Gravitas/AutoGPT` apresentou erros de execução repetidos no SZZ. O colaborador **removeu o repositório do input** e prosseguiu com os 23 restantes.
+
+#### Decisão
+
+Ambos foram **excluídos da análise** após autorização explícita ("se continuar dando muito erro, apenas anote que esse repositório apresentou problemas e vai ser deixado fora da análise"). Tentativas de contornar problemas de filesystem (habilitar `core.protectNTFS=false`, migrar para WSL) foram avaliadas e rejeitadas pelo custo-benefício, dado que (a) cada repo excluído representa 100 fixes amostrados — perda marginal sobre 10.000+ fixes totais, e (b) a hipótese é robusta o suficiente para que perdas pontuais não comprometam a inferência.
+
+**Limitação declarada.** Os 2 repositórios excluídos representam uma **limitação de validade externa**: em sistemas Linux/macOS (case-sensitive por padrão), pytorch seria processado normalmente. Esta limitação é citada na §5.2. O universo final efetivamente analisado é de **58 repositórios** (de 60 originais).
 
 ### 7.6 Recuperação após o crash
 
@@ -311,17 +322,21 @@ Documentados para rastreabilidade:
 - **`step3_enriquecer_com_loc_adaptado.py` incompatível.** Uma versão antiga "adaptada" do step3 esperava `commits_metodologia.csv` (arquivo inexistente) e produzia colunas com nomes incompatíveis com o que o `step4_analise_estatistica.py` lê (`total_loc_modified` em vez de `loc`, `not_involved` em vez de `not_bug_inducing`). O arquivo foi **removido do projeto** para evitar uso acidental. A versão canônica é `step3_enriquecer_com_loc.py`.
 - **Filtro de viés do `all_commits_loc.json`.** O `all_commits_loc.json` cobre os 60 repositórios do CSV original. Quando o SZZ é rodado em apenas um subset (29 repositórios neste caso), os repositórios não-rodados aparecem em `commits_classificados.csv` com `n_bug_inducing = 0` por construção (não pelo SZZ não tê-los analisado). Isso contaminaria especialmente a Spearman ρ, puxando-a artificialmente para zero. **Mitigação aplicada**: após o step3, filtrar `commits_classificados.csv` e `resumo_por_repo.csv` para conter apenas os repositórios efetivamente rodados pelo SZZ. Versão completa preservada com sufixo `_full.csv` para auditoria.
 
-### 7.8 Resultados parciais (n=29 repositórios)
+### 7.8 Resultados finais (n = 58 repositórios)
+
+Após a entrega do segundo lote pelo colaborador (23 repositórios + 6 já completos = 29 do colaborador) e a mesclagem com os 29 repositórios deste autor, totalizamos **58 repositórios efetivos** (60 originais menos pytorch e AutoGPT). O universo classificado contém **98.517 commits**, dos quais **5.223 foram identificados como bug-introducing** pelo MA-SZZ (taxa-base de 5,30%).
 
 | Métrica | Valor | Interpretação |
 |---|---:|---|
-| Mann-Whitney U | p ≈ 9,97 × 10⁻²¹⁶ | Diferença extremamente significativa |
-| Cliff's Delta | 0,53 | Magnitude **grande** |
-| Mediana Grupo A | 195,0 LOC | |
-| Mediana Grupo B | 24,0 LOC | ≈ 8× menor |
-| Spearman ρ | 0,13 | p = 0,50 (não-significativo) |
+| Mann-Whitney U (n=10.161 fixes processados) | p < 10⁻⁵⁰ | Diferença extremamente significativa |
+| Cliff's Delta | **0,483** | Magnitude **grande** (≥ 0,474) |
+| Mediana Grupo A (BICs) | **143,0 LOC** | |
+| Mediana Grupo B (não-BICs) | 23,0 LOC | ≈ 6,2× menor |
+| Spearman ρ (correlação por repositório) | **0,358** | **p = 0,006 ✓ significativo** |
 
-A não-significância da Spearman é **esperada** com n=29 e era prevista na §4.3.3. A entrega do segundo lote de repositórios (≈ 30 do colaborador) levará o n para próximo de 60 e tende a tornar o teste conclusivo. Os resultados de M-W e Cliff's Delta já permitem rejeitar a hipótese nula em nível individual (commits BIC são significativamente maiores), com tamanho de efeito grande — esses dois resultados são **estáveis** e dificilmente mudarão de magnitude com mais dados.
+**Os três testes formais foram confirmados em conjunto** — algo que não era verdade no estágio piloto (n=29), em que apenas Mann-Whitney e Cliff's Delta eram conclusivos. O Spearman tornou-se significativo após dobrar o número de repositórios, confirmando a previsão metodológica da §4.3.3 de que **n ≥ 30 é insuficiente para correlações monotônicas no nível de projeto**.
+
+A discussão detalhada destes resultados está em [`RESULTADOS.md`](RESULTADOS.md).
 
 ---
 

@@ -24,7 +24,9 @@ Pipeline completo para identificar **bug-introducing commits (BIC)** em reposit�
 8. [Referências centrais](#8-referências-centrais)
 9. [Troubleshooting](#9-troubleshooting)
 
-> 📑 **Para o artigo / TCC:** veja [`METODOLOGIA.md`](METODOLOGIA.md) — descrição estruturada da metodologia (perguntas de pesquisa, justificativa de cada escolha, ameaças à validade, referências).
+> 📑 **Para o artigo / TCC:**
+> - [`METODOLOGIA.md`](METODOLOGIA.md) — descrição estruturada da metodologia (perguntas de pesquisa, justificativa de cada escolha, ameaças à validade, referências, e §7 com a trajetória empírica completa incluindo incidentes).
+> - [`RESULTADOS.md`](RESULTADOS.md) — discussão dos achados finais (n=58 repositórios), análise por repositório, sensibilidade do efeito e implicações práticas.
 
 ---
 
