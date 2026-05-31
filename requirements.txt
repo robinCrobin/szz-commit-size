@@ -1,0 +1,13 @@
+# Dependências dos scripts da raiz (step1_*, step3_*, step4_*, gerar_amostra.py)
+# Para o pyszz/, instale também: pip install -r pyszz/requirements.txt
+
+pandas>=2.0
+numpy>=1.24
+scipy>=1.10
+matplotlib>=3.7
+seaborn>=0.12
+tqdm>=4.65
+pydriller>=2.5
+gitpython>=3.1
+requests>=2.31
+pyyaml>=6.0

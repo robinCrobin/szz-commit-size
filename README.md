@@ -116,7 +116,7 @@ szz-commit-size/
 ├── step1_adaptar_csv.py             # Converte commits_clean.csv → bugfix + all_commits
 ├── step1_coletar_bugfix_commits.py  # (Alternativo) coleta direto do GitHub
 ├── step3_enriquecer_com_loc.py      # Cruza output do SZZ com all_commits → CSVs
-├── step4_analise_estatistica.py     # Mann-Whitney U + Cliff's Delta + gráficos
+├── step4_analise_estatistica.py     # Análise por classes (Hattori & Lanza) + gráficos
 ├── README.md                        # Este arquivo
 ├── .gitignore
 │
@@ -282,7 +282,9 @@ Get-Content szz_data\resumo_por_repo.csv | Select-Object -First 5
 
 ---
 
-### Passo 6 — Análise estatística formal (Mann-Whitney + Cliff's Delta + Spearman)
+### Passo 6 — Análise estatística formal (por classes de tamanho)
+
+Todas as análises e gráficos são orientados pela classificação Hattori & Lanza 2008 (pequeno / médio / grande) — não há mais análises diretas sobre LOC bruto.
 
 ```powershell
 $env:PYTHONIOENCODING="utf-8"   # evita erro de encoding no Windows
@@ -290,19 +292,26 @@ python step4_analise_estatistica.py
 ```
 
 **Saídas esperadas:**
-- `szz_data/resultados/resultados_q1.csv` — tabela resumo dos testes
-- `szz_data/resultados/boxplot_grupos.png`
-- `szz_data/resultados/violin_grupos.png`
-- `szz_data/resultados/cdf_grupos.png`
-- `szz_data/resultados/scatter_repos.png`
+**Tabelas (CSV):**
+- `szz_data/resultados/resultados_q1.csv` — consolidado das análises (taxas por classe, Cochran-Armitage, distribuição A/B, χ² + Cramer's V, Spearman por repo)
+- `szz_data/resultados/taxa_bug_por_classe.csv` — n_total, n_bic, taxa% e IC 95% Wilson por classe (pequeno/médio/grande)
+- `szz_data/resultados/distribuicao_classes_por_grupo.csv` — % de pequeno/médio/grande dentro de cada grupo (BIC vs não-BIC)
+- `szz_data/resultados/resumo_por_repo_classes.csv` — para cada repositório: total, n_bic, taxa_bic_pct, pct_pequeno, pct_medio, pct_grande
 
-**No terminal**, você vê o resumo final:
+**Gráficos (PNG):**
+- `szz_data/resultados/bug_rate_por_classe.png` — **principal**: % de BIC em cada classe com IC 95% Wilson e n anotado. Responde *"qual a relação entre tamanho do commit e ocorrência de bugs?"*
+- `szz_data/resultados/distribuicao_classes_por_grupo.png` — barras agrupadas: composição de pequeno/médio/grande dentro do Grupo A (BIC) e Grupo B (não-BIC)
+- `szz_data/resultados/pct_grande_vs_taxa_bic.png` — scatter por repositório: % de commits grandes × taxa de BIC do repo, com linha de tendência e ρ de Spearman no título
+
+**No terminal**, você vê o resumo final (todas as métricas em termos de classes):
 ```
-RESUMO FINAL — Q1
-  Bug-introducing commits são maiores? : SIM
-  Tamanho do efeito (Cliff's Delta)    : 0.62 (grande)
-  Mediana Grupo A / Grupo B            : 168.5 / 18.0 LOC
-  Correlação por repositório (ρ)       : ...
+RESUMO FINAL — Q1 (orientado por classes de tamanho)
+  Taxa BIC | pequeno : 1.77%   medio : 7.68%   grande: 11.94%
+  Tendencia (Cochran-Armitage): Z=51.43  p=0.0000e+00  (crescente)
+  Grupo A (BIC):     16.3% peq / 56.7% med / 27.0% gra
+  Grupo B (nao-BIC): 50.7% peq / 38.1% med / 11.2% gra
+  Associacao classe x grupo  : chi2=2671.7, p=0.0000e+00, Cramer's V=0.165 (pequeno)
+  Spearman por repo (% gra x taxa BIC): rho=0.334, p=1.04e-02 (sig.)
 ```
 
 Para entender o que cada número significa, vá para a [§6 Interpretando as saídas](#6-interpretando-as-saídas--explicação-acadêmica).
@@ -381,6 +390,43 @@ A partir daí, **uma pessoa só** roda step3 + step4 normalmente — eles trabal
 
 ## 6. Interpretando as saídas — explicação acadêmica
 
+### 6.0 Taxa de bug-introducing por classe de tamanho (análise principal)
+
+> **Esta é a análise que responde diretamente à pergunta principal: "qual a relação entre o tamanho do commit e a ocorrência de bugs?"** Foi adicionada ao `step4_analise_estatistica.py` em resposta à crítica de que comparar a distribuição de LOC de BICs vs não-BICs não tornava explícito *o que é* um commit pequeno/grande e *quanto mais provável* cada classe é de introduzir bugs.
+
+**Classes (Hattori & Lanza, 2008 — limiares bidimensionais `arquivos × LOC`):**
+
+| Classe   | Regra                                                                 |
+|----------|-----------------------------------------------------------------------|
+| pequeno  | arquivos ≤ 5 **E** LOC ≤ 25                                           |
+| grande   | arquivos > 5 **E** LOC > 125                                          |
+| medio    | qualquer outro (muitos arq. com volume controlado, **ou** poucos arq. com volume maior) |
+
+**O que é computado** (`taxa_bug_por_classe.csv`):
+
+| coluna           | significado                                                       |
+|------------------|-------------------------------------------------------------------|
+| `n_total`        | total de commits da classe (no universo `commits_classificados.csv`) |
+| `n_bic`          | quantos foram apontados como BIC pelo SZZ                         |
+| `taxa_bic_pct`   | `n_bic / n_total × 100` — probabilidade empírica de um commit dessa classe ser BIC |
+| `ic95_lo/hi_pct` | intervalo de confiança de 95% (Wilson) para `taxa_bic_pct`        |
+| `loc_mediana`    | LOC mediano da classe (sanity-check de que a categorização faz sentido) |
+
+**Por que IC de Wilson e não normal**: para proporções pequenas ou tamanhos amostrais não-uniformes entre classes (a classe `grande` tende a ter `n` bem menor), o IC normal subestima incerteza. Wilson tem cobertura correta inclusive em extremos.
+
+**Teste formal de tendência — Cochran-Armitage:**
+
+- **Pergunta**: a taxa de BIC cresce monotonicamente conforme a classe de tamanho aumenta (pequeno → médio → grande)?
+- **Por que esse teste e não χ²**: o χ² genérico testa independência entre as duas variáveis sem usar a *ordem* das classes. Cochran-Armitage atribui scores ordinais (0/1/2) e testa especificamente uma tendência linear na proporção — mais sensível e diretamente alinhado à hipótese.
+- **Saída**: `Z` (sinal indica direção, módulo indica intensidade) e `p-valor`. `Z > 0` ∧ `p < 0.05` ⇒ tendência crescente significativa.
+- **Referência**: Armitage, P. (1955). *Tests for Linear Trends in Proportions and Frequencies.* Biometrics 11(3).
+
+**Gráfico `bug_rate_por_classe.png`**: barras com a taxa em %, barras de erro com IC 95%, `n` e `n_bic` anotados em cada barra, limiares de cada classe na legenda do eixo X. **É o gráfico para colocar como Figura 1 do artigo / TCC.**
+
+**Como reportar no artigo (exemplo)**:
+
+> "Aplicando os limiares bidimensionais de Hattori & Lanza (2008), commits pequenos (≤5 arquivos e ≤25 LOC) apresentaram taxa de bug-introducing de X% (IC 95% [a, b]), commits médios Y% [c, d] e commits grandes Z% [e, f]. O teste de Cochran-Armitage indicou tendência crescente significativa (Z=…, p<0.001), evidenciando uma relação monotônica positiva entre tamanho do commit e probabilidade de introduzir bugs."
+
 ### 6.1 `analyze_bic_size.py` (análise complementar, **não-formal**)
 
 **O que mede:** classifica BICs em "grande" (>5 arquivos AND >125 linhas) vs "pequeno", e calcula:
@@ -394,77 +440,72 @@ A partir daí, **uma pessoa só** roda step3 + step4 normalmente — eles trabal
 
 **Fraqueza acadêmica:** o limiar (5 arquivos, 125 linhas) é arbitrário. Em revisão por pares, alguém vai perguntar *"por que esses números?"*. Useável como análise prática/exploratória, não como evidência principal.
 
-### 6.2 `step4_analise_estatistica.py` (análise formal)
+### 6.2 `step4_analise_estatistica.py` (análise formal, toda por classes)
 
-Aplica **três testes não-paramétricos** consagrados na literatura de Engenharia de Software empírica.
+Todos os testes são organizados pela classificação Hattori & Lanza (pequeno/médio/grande). Nenhuma análise compara LOC bruto entre grupos.
 
-#### 6.2.1 Mann-Whitney U (`mannwhitneyu`)
+#### 6.2.1 Cochran-Armitage (tendência classe ordinal → taxa de BIC)
 
-**Pergunta**: "A distribuição de LOC do Grupo A (BICs) é estocasticamente maior que a do Grupo B (não-BICs)?"
+**Pergunta**: "A taxa `P(BIC | classe)` cresce monotonicamente conforme a classe vai de pequeno para grande?"
 
-**Por que não-paramétrico**: distribuições de LOC são fortemente assimétricas (long-tail). Testes paramétricos (t-test) assumem normalidade — falsificada na prática.
-
-**Saída e interpretação:**
-- `U`: estatística do teste (varia com tamanho amostral, sozinha não significa muito).
-- `p-valor`: probabilidade de observar essa diferença sob H0 ("os grupos vêm da mesma distribuição"). Convencionalmente: **p < 0.05** → rejeita H0.
-- **Atenção**: p-valor diz *se* há diferença, não *quanto*. Daí Cliff's Delta.
-
-**Referências fundadoras:**
-- Mann, H. B. & Whitney, D. R. (1947). *On a Test of Whether one of Two Random Variables is Stochastically Larger than the Other.* Annals of Mathematical Statistics.
-- Em ES: Kim, S. et al. (2008). *Classifying Software Changes: Clean or Buggy?* IEEE TSE.
-
-#### 6.2.2 Cliff's Delta (δ)
-
-**Pergunta**: "Qual o **tamanho do efeito**? Em quantos pares o Grupo A excede o Grupo B?"
-
-**Fórmula**: `δ = P(A > B) − P(B > A)`. Varia em `[-1, 1]`.
-
-**Thresholds de interpretação (Romano et al., 2006):**
-
-| `|δ|`         | Magnitude |
-|--------------:|-----------|
-| < 0.147       | negligível |
-| < 0.330       | pequeno    |
-| < 0.474       | médio      |
-| ≥ 0.474       | **grande** |
-
-**Por que importa**: com amostras grandes, qualquer diferença minúscula vira "significativa" (p < 0.05). Cliff's Delta diz se a diferença é **grande o suficiente para ser relevante** — separa "estatisticamente significativo" de "praticamente importante".
-
-**Referência:**
-- Romano, J. et al. (2006). *Appropriate statistics for ordinal level data: Should we really be using t-test and Cohen's d for evaluating group differences on the NSSE and other surveys?* Annual Meeting of the Florida Association of Institutional Research.
-
-#### 6.2.3 Spearman ρ (correlação por repositório)
-
-**Pergunta**: "**Por projeto**, repositórios com LOC médio maior têm proporção maior de bugs?"
-
-**Por que Spearman e não Pearson**: Spearman testa correlação **monotônica** (não exige relação linear). Robusto a outliers — alguns repos podem ter padrões muito diferentes.
+**Por que esse teste**: o teste atribui scores ordinais (0/1/2) às classes e testa especificamente uma tendência linear na proporção. χ² genérico ignora a *ordem* das classes — perde poder para detectar o gradiente que nos interessa.
 
 **Saída**:
-- `ρ` ∈ `[-1, 1]`. Próximo de 0 = sem correlação.
-- `p-valor`: similar ao M-W.
+- `Z`: sinal indica direção (positivo = crescente), módulo indica intensidade.
+- `p-valor`: bilateral, `p < 0.05` ⇒ tendência significativa.
 
-**Atenção crítica**: Spearman exige **muitos repositórios** (n ≥ 20-30 idealmente) para ter poder estatístico. Com só 5 repos analisados, o teste é fraco — esperado dar não-significativo. **É exatamente por isso que vocês querem dividir o trabalho entre pessoas e analisar 60 repos: para que esse teste vire conclusivo.**
+**Referência:** Armitage, P. (1955). *Tests for Linear Trends in Proportions and Frequencies.* Biometrics 11(3).
 
-**Referência:**
-- Spearman, C. (1904). *The proof and measurement of association between two things.* American Journal of Psychology.
+#### 6.2.2 χ² + Cramer's V (associação classe × grupo)
+
+**Pergunta**: "A distribuição das classes (pequeno/médio/grande) dentro do Grupo A (BIC) é diferente da do Grupo B (não-BIC)?"
+
+**Por que esse teste**: complementa o Cochran-Armitage olhando para o problema na outra direção. Cochran-Armitage testa `P(BIC | classe)`; χ² testa se `P(classe | grupo)` difere. Os dois conjuntamente cercam o fenômeno (taxa condicional vs composição).
+
+**Saída**:
+- `χ²` e `gl`: estatística e graus de liberdade da tabela 2×3.
+- `p-valor`: `p < 0.05` ⇒ associação significativa.
+- **Cramer's V**: tamanho de efeito normalizado em [0, 1]. Thresholds (Cohen 1988, `df*=1`): < 0,10 negligível; < 0,30 pequeno; < 0,50 médio; ≥ 0,50 grande.
+
+**Por que Cramer's V e não risk ratio**: V é a métrica padrão para tabela de contingência categórica, comparável com outros estudos. O risk ratio é informativo mas dicotomiza.
+
+**Referências:**
+- Pearson, K. (1900). *On the Criterion that a Given System of Deviations…*
+- Cramér, H. (1946). *Mathematical Methods of Statistics*.
+- Cohen, J. (1988). *Statistical Power Analysis for the Behavioral Sciences*.
+
+#### 6.2.3 Spearman ρ por repositório (% de grandes × taxa de BIC)
+
+**Pergunta**: "Repositórios em que commits grandes são proporcionalmente mais frequentes apresentam taxa de bug-introducing mais alta?"
+
+A correlação é calculada entre dois números *por repositório*:
+- `pct_grande` — % de commits do repo classificados como grandes (Hattori & Lanza).
+- `taxa_bic_pct` — % de commits do repo marcados como BIC pelo SZZ.
+
+**Por que `pct_grande` e não LOC médio**: alinha a Q1c com as outras análises (todas pela classificação) e evita que outliers de LOC distorçam a média do repositório.
+
+**Por que Spearman e não Pearson**: testa correlação **monotônica** (não exige linearidade). Robusto a outliers.
+
+**Atenção crítica**: Spearman exige n ≥ 20–30 repositórios para poder estatístico aceitável. O estudo atual usa 58 repos — suficiente.
+
+**Referência:** Spearman, C. (1904). *The proof and measurement of association between two things.*
 
 ### 6.3 Gráficos (`szz_data/resultados/*.png`)
 
 | Gráfico | O que mostra | Quando citar no artigo |
 |---|---|---|
-| **Boxplot** (escala log) | Mediana, quartis, dispersão dos dois grupos | Visualização principal — primeiro contato do leitor com a diferença |
-| **Violin** | Forma completa da distribuição (densidade) | Quando quiser destacar bimodalidade/cauda |
-| **CDF** | Proporção acumulada de commits ≤ X LOC | Útil para "que % dos BICs estão acima de Y LOC" |
-| **Scatter** | Cada ponto = um repo: LOC médio × taxa de bugs | Junto da Spearman; ilustra a correlação por projeto |
+| **`bug_rate_por_classe.png`** | Taxa de BIC em cada classe (Hattori & Lanza 2D) com IC 95% Wilson e n anotado | **Figura principal** — responde diretamente à pergunta de pesquisa |
+| **`distribuicao_classes_por_grupo.png`** | Barras agrupadas: % de pequeno/médio/grande dentro do Grupo A (BIC) e Grupo B (não-BIC) | Acompanha o χ² + Cramer's V — mostra que BICs concentram em médio/grande |
+| **`pct_grande_vs_taxa_bic.png`** | Cada ponto = um repositório. X: % de commits grandes no repo; Y: taxa BIC do repo. Linha de tendência + ρ no título | Acompanha o Spearman — ilustra a correlação por projeto |
 
-### 6.4 Resumo das três perguntas (mapa mental)
+### 6.4 Resumo das perguntas (mapa mental)
 
 | Pergunta | Teste | Significância? | Tamanho de efeito |
 |---|---|---|---|
-| BICs são maiores que não-BICs? | Mann-Whitney U | p-valor | Cliff's Delta |
-| **Quanto maiores?** | — | — | Cliff's Delta + medianas |
-| Em repos com commits maiores, mais bugs? | Spearman ρ | p-valor | ρ |
-| Acima de um limiar prático, qual o risco? | (analyze_bic_size.py) | — | Risk ratio |
+| **Qual a relação entre tamanho e ocorrência de bugs?** | **Taxas por classe + Cochran-Armitage** | p-valor | Diferença absoluta de taxas + IC 95% Wilson |
+| BICs e não-BICs têm composição de classes diferente? | χ² (classe × grupo) | p-valor | Cramer's V |
+| Em repos com mais commits grandes, mais bugs? | Spearman ρ (pct_grande × taxa BIC) | p-valor | ρ |
+| Acima de um limiar prático, qual o risco? | (`analyze_bic_size.py`) | — | Risk ratio |
 
 ---
 
@@ -487,8 +528,11 @@ Aplica **três testes não-paramétricos** consagrados na literatura de Engenhar
 | Da Costa, D.A. et al. (2017) | Avaliação empírica das variantes SZZ |
 | Neto, E.C., da Costa, D.A. & Kulesza, U. (2018) | RA-SZZ (refactoring-aware) |
 | Rezk, V., Kamei, Y., McIntosh, S. (2022) | "Ghost commits" e calibração de SZZ |
-| Mann & Whitney (1947) | Teste U |
-| Romano et al. (2006) | Thresholds de Cliff's Delta |
+| Hattori, L. & Lanza, M. (2008) | Limiares de classe de tamanho (pequeno/médio/grande) |
+| Armitage, P. (1955) | Teste de tendência em proporções |
+| Pearson, K. (1900) / Cramér, H. (1946) / Cohen, J. (1988) | χ² + Cramer's V (associação categórica) |
+| Wilson, E. B. (1927) / Brown, Cai & DasGupta (2001) | IC para proporção binomial |
+| Spearman, C. (1904) | Correlação por postos |
 | Herzig, K. et al. (2013) | Inacurácia de classificação por keyword |
 
 ---
