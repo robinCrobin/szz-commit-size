@@ -1,0 +1,11 @@
+# Lote 2/41 — 10 repos
+karpathy/nanoGPT
+ultralytics/yolov5
+zylon-ai/private-gpt
+soimort/you-get
+FoundationAgents/OpenManus
+deepfakes/faceswap
+psf/requests
+D4Vinci/Scrapling
+datawhalechina/hello-agents
+safishamsi/graphify

@@ -1,0 +1,11 @@
+# Lote 7/41 — 10 repos
+ZhuLinsen/daily_stock_analysis
+chatchat-space/Langchain-Chatchat
+sqlmapproject/sqlmap
+openai/gym
+babysor/MockingBird
+huggingface/pytorch-image-models
+google/langextract
+hankcs/HanLP
+Textualize/textual
+wshobson/agents

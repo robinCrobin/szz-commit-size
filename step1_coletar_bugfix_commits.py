@@ -28,7 +28,7 @@ import subprocess
 import time
 import requests
 from tqdm import tqdm
-from pydriller import Repository
+from pydriller import RepositoryMining
 from datetime import datetime, timezone
 
 # ─────────────────────────────────────────────
@@ -211,7 +211,7 @@ def collect_commits_from_repo(repo_name: str, repo_path: str) -> tuple[list, lis
     since_dt = datetime(datetime.now().year - YEARS_BACK, 1, 1, tzinfo=timezone.utc)
 
     try:
-        for commit in Repository(repo_path, since=since_dt).traverse_commits():
+        for commit in RepositoryMining(repo_path, since=since_dt).traverse_commits():
             loc = commit.insertions + commit.deletions
             files_changed = commit.files
 

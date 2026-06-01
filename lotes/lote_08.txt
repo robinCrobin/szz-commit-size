@@ -1,0 +1,11 @@
+# Lote 8/41 — 10 repos
+jax-ml/jax
+HKUDS/LightRAG
+datalab-to/marker
+geekcomputers/Python
+frappe/erpnext
+khoj-ai/khoj
+PostHog/posthog
+stanfordnlp/dspy
+facebookresearch/detectron2
+python-poetry/poetry

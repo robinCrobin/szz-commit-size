@@ -1,0 +1,11 @@
+# Lote 27/41 — 10 repos
+agent0ai/agent-zero
+pytorch/vision
+ActivityWatch/activitywatch
+jianchang512/pyvideotrans
+pallets/click
+topoteretes/cognee
+dortania/OpenCore-Legacy-Patcher
+MustardChef/WSABuilds
+allenai/olmocr
+tirth8205/code-review-graph

@@ -1,0 +1,11 @@
+# Lote 9/41 — 10 repos
+PDFMathTranslate/PDFMathTranslate
+Pythagora-io/gpt-pilot
+ocrmypdf/OCRmyPDF
+huggingface/diffusers
+explosion/spaCy
+XX-net/XX-Net
+microsoft/graphrag
+OpenBMB/ChatDev
+kovidgoyal/kitty
+certbot/certbot

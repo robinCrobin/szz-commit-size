@@ -1,0 +1,11 @@
+# Lote 5/41 — 10 repos
+HKUDS/nanobot
+faif/python-patterns
+gradio-app/gradio
+ray-project/ray
+ccxt/ccxt
+deepspeedai/DeepSpeed
+mingrammer/diagrams
+psf/black
+hpcaitech/ColossalAI
+666ghj/BettaFish

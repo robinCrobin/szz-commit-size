@@ -1,0 +1,11 @@
+# Lote 35/41 — 10 repos
+Anionex/banana-slides
+microsoft/playwright-python
+sympy/sympy
+Zulko/moviepy
+nltk/nltk
+google-deepmind/alphafold
+pyodide/pyodide
+SWivid/F5-TTS
+BlinkDL/RWKV-LM
+JoeanAmier/TikTokDownloader

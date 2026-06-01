@@ -1,0 +1,11 @@
+# Lote 40/41 — 10 repos
+Gallopsled/pwntools
+plasma-umass/scalene
+apache/tvm
+Lightning-AI/litgpt
+TomSchimansky/CustomTkinter
+borgbackup/borg
+sshuttle/sshuttle
+DLR-RM/stable-baselines3
+getpelican/pelican
+FujiwaraChoki/MoneyPrinter

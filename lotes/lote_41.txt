@@ -1,0 +1,6 @@
+# Lote 41/41 — 5 repos
+GreyDGL/PentestGPT
+dbcli/pgcli
+microsoft/RD-Agent
+Jiayi-Pan/TinyZero
+567-labs/instructor

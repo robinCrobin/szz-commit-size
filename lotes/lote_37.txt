@@ -1,0 +1,11 @@
+# Lote 37/41 — 10 repos
+PaddlePaddle/PaddleDetection
+unifyai/ivy
+sml2h3/ddddocr
+geldata/gel
+idank/explainshell
+vibrantlabsai/ragas
+FlareSolverr/FlareSolverr
+google/yapf
+mwaskom/seaborn
+dottxt-ai/outlines

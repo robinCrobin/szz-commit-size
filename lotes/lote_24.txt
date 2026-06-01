@@ -1,0 +1,11 @@
+# Lote 24/41 — 10 repos
+SWE-agent/SWE-agent
+joke2k/faker
+Avaiga/taipy
+DrewThomasson/ebook2audiobook
+mxrch/GHunt
+kivy/kivy
+Alibaba-NLP/DeepResearch
+eosphoros-ai/DB-GPT
+lss233/kirara-ai
+astral-sh/ty

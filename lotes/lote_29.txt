@@ -1,0 +1,11 @@
+# Lote 29/41 — 10 repos
+agentscope-ai/QwenPaw
+exaloop/codon
+ipython/ipython
+rendercv/rendercv
+caronc/apprise
+QwenLM/Qwen3-Coder
+suitenumerique/docs
+AsyncFuncAI/deepwiki-open
+Free-TV/IPTV
+aio-libs/aiohttp

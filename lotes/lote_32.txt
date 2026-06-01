@@ -1,0 +1,11 @@
+# Lote 32/41 — 10 repos
+HKUDS/DeepCode
+confident-ai/deepeval
+treeverse/dvc
+dagster-io/dagster
+mindverse/Second-Me
+microsoft/pyright
+saltstack/salt
+fabric/fabric
+ansible/awx
+GaiZhenbiao/ChuanhuChatGPT

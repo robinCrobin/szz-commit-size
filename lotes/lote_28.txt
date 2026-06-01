@@ -1,0 +1,11 @@
+# Lote 28/41 — 10 repos
+NVIDIA-NeMo/NeMo
+pydantic/pydantic-ai
+microsoft/agent-lightning
+ranger/ranger
+kvcache-ai/ktransformers
+Huanshere/VideoLingo
+google/magika
+camel-ai/camel
+aws/aws-cli
+networkx/networkx

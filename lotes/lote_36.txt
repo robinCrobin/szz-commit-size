@@ -1,0 +1,11 @@
+# Lote 36/41 — 10 repos
+gunthercox/ChatterBot
+LibreTranslate/LibreTranslate
+flairNLP/flair
+vectorize-io/hindsight
+MODSetter/SurfSense
+maurosoria/dirsearch
+dmlc/dgl
+optuna/optuna
+modelscope/ms-swift
+SFTtech/openage

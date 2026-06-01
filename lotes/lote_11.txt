@@ -1,0 +1,11 @@
+# Lote 11/41 — 10 repos
+openai/openai-python
+searxng/searxng
+FujiwaraChoki/MoneyPrinterV2
+jumpserver/jumpserver
+fishaudio/fish-speech
+trailofbits/algo
+soxoj/maigret
+encode/django-rest-framework
+onyx-dot-app/onyx
+AtsushiSakai/PythonRobotics

@@ -1,0 +1,11 @@
+# Lote 31/41 — 10 repos
+browser-use/web-ui
+MatrixTM/MHDDoS
+wkentaro/labelme
+cvat-ai/cvat
+cft0808/edict
+zauberzeug/nicegui
+jaakkopasanen/AutoEq
+Kanaries/pygwalker
+pyecharts/pyecharts
+fortra/impacket

@@ -1,0 +1,11 @@
+# Lote 14/41 — 10 repos
+getzep/graphiti
+anthropics/claude-plugins-official
+Fosowl/agenticSeek
+WZMIAOMIAO/deep-learning-for-image-processing
+subframe7536/maple-font
+walter201230/Python
+mlflow/mlflow
+huggingface/open-r1
+ycm-core/YouCompleteMe
+ScrapeGraphAI/Scrapegraph-ai

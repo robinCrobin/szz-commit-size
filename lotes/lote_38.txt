@@ -1,0 +1,11 @@
+# Lote 38/41 — 10 repos
+pytest-dev/pytest
+prowler-cloud/prowler
+mlfoundations/open_clip
+dask/dask
+Tencent-Hunyuan/Hunyuan3D-2
+andrewyng/aisuite
+rohitg00/ai-engineering-from-scratch
+ag-ui-protocol/ag-ui
+yusufkaraaslan/Skill_Seekers
+NVIDIA/TensorRT-LLM

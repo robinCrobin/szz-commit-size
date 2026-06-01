@@ -1,0 +1,11 @@
+# Lote 30/41 — 10 repos
+NVIDIA/Megatron-LM
+piskvorky/gensim
+QwenLM/Qwen-Agent
+laramies/theHarvester
+modelscope/FunASR
+raga-ai-hub/RagaAI-Catalyst
+flet-dev/flet
+langbot-app/LangBot
+tgbot-collection/YYeTsBot
+Rapptz/discord.py

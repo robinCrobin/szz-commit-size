@@ -1,0 +1,11 @@
+# Lote 13/41 — 10 repos
+sgl-project/sglang
+pydantic/pydantic
+locustio/locust
+ArchiveBox/ArchiveBox
+huggingface/smolagents
+assafelovic/gpt-researcher
+QwenLM/Qwen3
+hsliuping/TradingAgents-CN
+squidfunk/mkdocs-material
+openai/openai-agents-python

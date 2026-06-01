@@ -1,0 +1,11 @@
+# Lote 23/41 — 10 repos
+datalab-to/surya
+OpenBMB/VoxCPM
+akfamily/akshare
+CloakHQ/CloakBrowser
+kaixindelele/ChatPaper
+stitionai/devika
+fastapi/typer
+chidiwilliams/buzz
+comet-ml/opik
+AIDC-AI/Pixelle-Video

@@ -1,0 +1,11 @@
+# Lote 34/41 — 10 repos
+jundot/omlx
+llmware-ai/llmware
+Nuitka/Nuitka
+MemoriLabs/Memori
+teng-lin/notebooklm-py
+Comfy-Org/ComfyUI-Manager
+coderamp-labs/gitingest
+scipy/scipy
+WEIFENG2333/VideoCaptioner
+horovod/horovod

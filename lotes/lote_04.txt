@@ -1,0 +1,11 @@
+# Lote 4/41 — 10 repos
+Aider-AI/aider
+9001/copyparty
+exo-explore/exo
+zhayujie/CowAgent
+streamlit/streamlit
+SimplifyJobs/Summer2026-Internships
+hiroi-sora/Umi-OCR
+getsentry/sentry
+mitmproxy/mitmproxy
+microsoft/qlib

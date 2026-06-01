@@ -1,0 +1,11 @@
+# Lote 33/41 — 10 repos
+jupyter/jupyter
+Canner/WrenAI
+mail-in-a-box/mailinabox
+pre-commit/pre-commit
+albumentations-team/albumentations
+encode/httpx
+lra/mackup
+beetbox/beets
+budtmo/docker-android
+bloomberg/memray

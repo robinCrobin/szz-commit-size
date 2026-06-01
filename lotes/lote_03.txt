@@ -1,0 +1,11 @@
+# Lote 3/41 — 10 repos
+freqtrade/freqtrade
+jingyaogong/minimind
+NanmiCoder/MediaCrawler
+run-llama/llama_index
+lllyasviel/Fooocus
+pandas-dev/pandas
+BerriAI/litellm
+microsoft/VibeVoice
+oobabooga/textgen
+apache/airflow

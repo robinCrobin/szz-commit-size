@@ -1,0 +1,11 @@
+# Lote 12/41 — 10 repos
+JaidedAI/EasyOCR
+python-telegram-bot/python-telegram-bot
+hpcaitech/Open-Sora
+Genesis-Embodied-AI/genesis-world
+deepinsight/insightface
+521xueweihan/GitHub520
+getredash/redash
+celery/celery
+reflex-dev/reflex
+stanford-oval/storm

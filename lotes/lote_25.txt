@@ -1,0 +1,11 @@
+# Lote 25/41 — 10 repos
+spotify/luigi
+huggingface/sentence-transformers
+pyscript/pyscript
+hummingbot/hummingbot
+sanic-org/sanic
+HKUDS/AI-Trader
+plotly/plotly.py
+openai/evals
+huggingface/trl
+KlingAIResearch/LivePortrait

@@ -1,0 +1,11 @@
+# Lote 17/41 — 10 repos
+Guovin/iptv-api
+Delgan/loguru
+Dao-AILab/flash-attention
+ranaroussi/yfinance
+pyg-team/pytorch_geometric
+sinaptik-ai/pandas-ai
+vanna-ai/vanna
+deepseek-ai/DeepSeek-Coder
+jhao104/proxy_pool
+langchain-ai/deepagents

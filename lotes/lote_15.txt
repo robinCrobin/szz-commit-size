@@ -1,0 +1,11 @@
+# Lote 15/41 — 10 repos
+usestrix/strix
+agentscope-ai/agentscope
+keon/algorithms
+Cinnamon/kotaemon
+zai-org/Open-AutoGLM
+PrefectHQ/fastmcp
+zulip/zulip
+OpenBMB/MiniCPM-V
+lucidrains/vit-pytorch
+pypa/pipenv

@@ -1,0 +1,11 @@
+# Lote 1/41 — 10 repos
+AUTOMATIC1111/stable-diffusion-webui
+ytdl-org/youtube-dl
+microsoft/markitdown
+openai/whisper
+3b1b/manim
+Z4nzu/hackingtool
+binary-husky/gpt_academic
+FoundationAgents/MetaGPT
+labmlai/annotated_deep_learning_paper_implementations
+openinterpreter/open-interpreter

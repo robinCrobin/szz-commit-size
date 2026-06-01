@@ -1,0 +1,11 @@
+# Lote 22/41 — 10 repos
+wagtail/wagtail
+w-okada/voice-changer
+facebook/prophet
+hugohe3/ppt-master
+Panniantong/Agent-Reach
+openai/gpt-oss
+google-research/timesfm
+nginx-proxy/nginx-proxy
+google/adk-python
+camel-ai/owl

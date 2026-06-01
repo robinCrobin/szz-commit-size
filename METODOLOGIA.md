@@ -80,6 +80,24 @@ Para ainda assim mitigar falsos positivos, mantivemos os filtros **independentes
 - `select_meta_changes` (interno do MA-SZZ): exclui commits que só mexem em comentário/whitespace/formatação.
 - `filter_revert_commits`: exclui reverts.
 - `get_merge_commits`: exclui commits de merge.
+1
+### 2.5 Amostragem do conjunto de bug-fix commits
+
+Para cada repositório com mais de 100 bug-fix commits identificados pela heurística de keyword (§2.2), aplicou-se **amostragem aleatória simples sem reposição** (`random.sample`, semente fixa `seed = 42`) selecionando 100 fixes para serem submetidos ao SZZ. Repositórios com 100 ou menos fixes foram processados integralmente.
+
+A amostragem incide **exclusivamente sobre o conjunto de bug-fix commits** — o *input* do SZZ. O **universo de commits** utilizado na classificação Grupo A (bug-introducing) vs Grupo B (não-bug-introducing) preserva o conjunto completo de commits dos repositórios (registrado em `all_commits_loc.json`). Em outras palavras, o cap reduz o conjunto de *consultas* feitas ao SZZ, não o universo amostral final de commits classificados.
+
+#### Motivação prática
+
+A execução do SZZ em todos os fixes seria inviável: repositórios como `litellm` (19 058 fixes), `airflow` (10 564), `pandas` (5 012) ou `pytorch` (~13 000) implicariam dias de execução por repositório. O cap de 100 fixes por repositório torna o estudo factível mantendo cobertura ampla de projetos.
+
+#### Implicação para o poder de detecção
+
+Cada fix processado pelo SZZ abre uma janela de blame que pode identificar BICs. Reduzir o número de fixes processados de N para 100 reduz a probabilidade de identificar BICs por fator aproximado de `100/N`. Commits que **seriam** apontados como BIC apenas por fixes descartados ficam classificados como Grupo B mesmo se, em uma execução exaustiva, seriam Grupo A. O viés resultante é discutido formalmente na §5.1.
+
+#### Heterogeneidade na coleta (transparência)
+
+Cinco dos 58 repositórios originais foram processados **antes** da decisão do cap (fase piloto §7.2: `django` n=528, `scikit-learn` n=281) ou pelo colaborador sem cap (`hermes-agent` n=4 427, `mempalace` n=407, `EbookFoundation/free-programming-books` n=185). Esses cinco repositórios permanecem com seus tamanhos amostrais originais. Os 53 demais e todos os repositórios adicionados em lotes posteriores seguem o cap de 100. Essa heterogeneidade é reconhecida como limitação metodológica (§5.1) e não foi normalizada retroativamente para preservar os dados já coletados.
 
 ---
 
@@ -226,6 +244,11 @@ Seguindo a taxonomia de **Wohlin et al. (2012)**:
 
 - **SZZ produz falsos positivos.** Mesmo MA-SZZ apresenta erros — **Rezk et al. (2022)** reportam ~17% de "ghost commits" (apontados pelo blame mas que não introduziram o bug). **Mitigação:** uso de MA-SZZ (mais conservador que Base/AG-SZZ) e filtro adicional de reverts.
 - **`is_bug_fix` por keyword é heurística** com erro estimado em 30% (Herzig et al. 2013). **Mitigação:** declaração explícita; valida análise com sub-amostra de fixes verificáveis em trabalho futuro.
+- **Amostragem do conjunto de bug-fix commits reduz o poder de detecção do SZZ** (§2.5). Commits que seriam identificados como bug-introducing apenas por fixes não amostrados ficam classificados como Grupo B, inflando-o e atenuando o efeito medido. **Direção do viés:** conservador em relação à hipótese principal (subestima a diferença Grupo A vs B). **Impacto desigual por análise:**
+  - *Q1₀ (taxa por classe — Cochran-Armitage):* afetado de forma modesta — agregamos por classe através de todos os repositórios; o efeito relativo entre classes é preservado se BICs perdidos têm distribuição uniforme de tamanho. Se BICs grandes vierem desproporcionalmente de repositórios capados (grandes), o efeito é atenuado — viés conservador.
+  - *Q1a (χ² + Cramer's V):* afetado de forma modesta pela mesma razão.
+  - *Q1b (Spearman por repositório):* afetado de forma mais expressiva — a `taxa_bic_pct` reportada para repositórios grandes está sistematicamente subestimada (numerador reduzido, denominador inalterado), o que pode atenuar a correlação por projeto.
+- **Heterogeneidade na amostragem entre repositórios** (§2.5). Cinco repositórios foram processados sem cap por motivos históricos (piloto e fase pré-decisão pelo colaborador), enquanto os demais seguem o cap de 100. O outlier `hermes-agent` (4 427 fixes) sozinho domina aproximadamente 44% dos fixes totais nos 58 repositórios originais, podendo enviesar o agregado em sua direção específica. **Mitigação:** declaração explícita; análise de sensibilidade variando o cap (50, 100, 300) em sub-amostra é apontada como trabalho futuro.
 
 ### 5.2 Validade externa
 

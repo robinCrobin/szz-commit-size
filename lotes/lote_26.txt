@@ -1,0 +1,11 @@
+# Lote 26/41 — 10 repos
+state-spaces/mamba
+mikf/gallery-dl
+emcie-co/parlant
+Evil0ctal/Douyin_TikTok_Download_API
+fastapi/sqlmodel
+xming521/WeClone
+arc53/DocsGPT
+smicallef/spiderfoot
+apple/ml-stable-diffusion
+fail2ban/fail2ban

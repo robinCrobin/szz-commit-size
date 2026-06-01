@@ -1,0 +1,11 @@
+# Lote 19/41 — 10 repos
+magic-wormhole/magic-wormhole
+PrefectHQ/prefect
+PromtEngineer/localGPT
+tornadoweb/tornado
+microsoft/unilm
+mkdocs/mkdocs
+graphdeco-inria/gaussian-splatting
+m-bain/whisperX
+OthmanAdi/planning-with-files
+ahujasid/blender-mcp

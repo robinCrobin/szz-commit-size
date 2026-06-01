@@ -1,0 +1,11 @@
+# Lote 10/41 — 10 repos
+AstrBotDevs/AstrBot
+langchain-ai/langgraph
+tinygrad/tinygrad
+nicolargo/glances
+facebookresearch/fairseq
+numpy/numpy
+VectifyAI/PageIndex
+dgtlmoon/changedetection.io
+tqdm/tqdm
+Lightning-AI/pytorch-lightning

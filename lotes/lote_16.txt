@@ -1,0 +1,11 @@
+# Lote 16/41 — 10 repos
+kovidgoyal/calibre
+cookiecutter/cookiecutter
+spotDL/spotify-downloader
+microsoft/JARVIS
+volcengine/OpenViking
+oraios/serena
+huggingface/lerobot
+HKUDS/DeepTutor
+plotly/dash
+pytorch/examples

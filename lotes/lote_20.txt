@@ -1,0 +1,11 @@
+# Lote 20/41 — 10 repos
+recommenders-team/recommenders
+Skyvern-AI/skyvern
+XiaoMi/ha_xiaomi_home
+goauthentik/authentik
+huggingface/datasets
+verl-project/verl
+airbytehq/airbyte
+p-e-w/heretic
+FunAudioLLM/CosyVoice
+huggingface/peft

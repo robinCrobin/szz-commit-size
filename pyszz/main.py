@@ -118,15 +118,29 @@ def main(input_json: str, out_json: str, conf: Dict, repos_dir: str):
                 issue_date = parse_issue_date(commit)
 
             if szz_inst is None:
-                szz_inst = _make_szz(szz_name, repo_name, repo_url, repos_dir)
+                try:
+                    szz_inst = _make_szz(szz_name, repo_name, repo_url, repos_dir)
+                except Exception as ex:
+                    log.warning(f"SZZ init FAILED for repo {repo_name}: {type(ex).__name__}: {ex}")
+                    bugfix_commits[i]["inducing_commit_hash"] = []
+                    bugfix_commits[i]["szz_error"] = f"init: {type(ex).__name__}: {str(ex)[:200]}"
+                    szz_inst = None
+                    continue
                 if szz_inst is None:
                     log.info(f'SZZ implementation not found: {szz_name}')
                     exit(-3)
 
-            bug_inducing_commits = _run_one(szz_inst, szz_name, fix_commit, conf, issue_date) or set()
-
-            log.info(f"result: {bug_inducing_commits}")
-            bugfix_commits[i]["inducing_commit_hash"] = [bic.hexsha for bic in bug_inducing_commits if bic]
+            # Isola falhas por fix (ex.: GitCommandError em commits com paths invalidos
+            # no NTFS, problemas de blame, etc). Sem isso, um unico fix problematico
+            # mata o run inteiro — vide §7.5 de METODOLOGIA.md.
+            try:
+                bug_inducing_commits = _run_one(szz_inst, szz_name, fix_commit, conf, issue_date) or set()
+                log.info(f"result: {bug_inducing_commits}")
+                bugfix_commits[i]["inducing_commit_hash"] = [bic.hexsha for bic in bug_inducing_commits if bic]
+            except Exception as ex:
+                log.warning(f"FIX SKIPPED {repo_name} {fix_commit}: {type(ex).__name__}: {str(ex)[:160]}")
+                bugfix_commits[i]["inducing_commit_hash"] = []
+                bugfix_commits[i]["szz_error"] = f"{type(ex).__name__}: {str(ex)[:200]}"
 
             if (i + 1) % SAVE_EVERY == 0:
                 with open(partial_path, 'w') as out:

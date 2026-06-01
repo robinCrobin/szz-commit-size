@@ -1,0 +1,11 @@
+# Lote 21/41 — 10 repos
+QwenLM/Qwen
+RasaHQ/rasa
+marimo-team/marimo
+Zeyi-Lin/HivisionIDPhotos
+1Panel-dev/MaxKB
+onnx/onnx
+index-tts/index-tts
+netbox-community/netbox
+HKUDS/RAG-Anything
+python/mypy

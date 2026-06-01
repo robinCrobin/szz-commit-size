@@ -1,0 +1,11 @@
+# Lote 18/41 — 10 repos
+Fincept-Corporation/FinceptTerminal
+modelcontextprotocol/python-sdk
+SYSTRAN/faster-whisper
+danielgatis/rembg
+saleor/saleor
+letta-ai/letta
+SuperClaude-Org/SuperClaude_Framework
+matplotlib/matplotlib
+serengil/deepface
+mlc-ai/mlc-llm

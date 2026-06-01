@@ -1,0 +1,11 @@
+# Lote 6/41 — 10 repos
+paperless-ngx/paperless-ngx
+vnpy/vnpy
+agno-agi/agno
+HKUDS/CLI-Anything
+roboflow/supervision
+lm-sys/FastChat
+2noise/ChatTTS
+mindsdb/minds-platform
+QuivrHQ/quivr
+ManimCommunity/manim
