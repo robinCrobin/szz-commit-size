@@ -18,6 +18,14 @@ Depois do batch:
 USO:
   $env:GITHUB_TOKEN = "ghp_..."   # opcional, evita rate-limit
   python processar_lote.py lotes/lote_01.txt
+  python processar_lote.py lotes/lote_01.txt --no-merge   # p/ rodar lotes em paralelo
+
+Com --no-merge o script NAO toca nos arquivos canonicos compartilhados
+(all_commits_loc.json, bugfix_commits.json, output_raszz.json). Em vez disso
+grava o resultado do lote isolado em szz_data/parcial/<lote>_{all,bugfix,bic}.json.
+Isso elimina a corrida de escrita quando varios lotes rodam ao mesmo tempo.
+Depois que todos terminarem, rode `python merge_lotes.py` UMA vez para
+consolidar tudo nos canonicos (passo sequencial, sem corrida).
 
 Se algo falhar antes do merge, os clones NAO sao deletados (para depuracao).
 """
@@ -213,11 +221,14 @@ def save_json(p: Path, data):
 # ─────────────────────────────────────────────
 
 def main():
-    if len(sys.argv) < 2:
-        print("Uso: python processar_lote.py <lote_NN.txt>")
+    argv = sys.argv[1:]
+    no_merge = "--no-merge" in argv
+    posicional = [a for a in argv if not a.startswith("--")]
+    if not posicional:
+        print("Uso: python processar_lote.py <lote_NN.txt> [--no-merge]")
         sys.exit(1)
 
-    lote_path = Path(sys.argv[1])
+    lote_path = Path(posicional[0])
     if not lote_path.exists():
         print(f"Arquivo nao encontrado: {lote_path}")
         sys.exit(1)
@@ -296,6 +307,38 @@ def main():
         sys.exit(4)
     latest = novos[-1]
     print(f"[szz] output: {latest}")
+
+    # ── 5a. modo paralelo: grava parciais isolados, NAO mexe nos canonicos ──
+    if no_merge:
+        parcial_dir = SZZ_DATA / "parcial"
+        parcial_dir.mkdir(parents=True, exist_ok=True)
+        p_all = parcial_dir / f"{lote_name}_all.json"
+        p_bf  = parcial_dir / f"{lote_name}_bugfix.json"
+        p_bic = parcial_dir / f"{lote_name}_bic.json"
+        save_json(p_all, novos_all)
+        save_json(p_bf, novos_bugfix)
+        save_json(p_bic, load_json(latest, []))
+        print(f"\n[no-merge] parciais gravados (sem tocar nos canonicos):")
+        print(f"  {p_all}  ({len(novos_all):,} commits)")
+        print(f"  {p_bf}   ({len(novos_bugfix):,} bug-fixes)")
+        print(f"  {p_bic}  (output SZZ)")
+        print(f"  -> rode `python merge_lotes.py` no fim para consolidar.")
+
+        # cleanup dos clones deste lote (repos sao distintos entre lotes)
+        print(f"\n[cleanup] removendo {len(a_limpar)} clones do lote...")
+        for p in a_limpar:
+            try:
+                rmtree_force(p)
+                print(f"  removido: {p}")
+            except Exception as e:
+                print(f"  FALHA remover {p}: {e}")
+            try:
+                if p.parent.is_dir() and not any(p.parent.iterdir()):
+                    p.parent.rmdir()
+            except Exception:
+                pass
+        print(f"\n=== {lote_path.name} CONCLUIDO (no-merge) ===")
+        return
 
     # ── 5. merge ──
     # all_commits_loc.json

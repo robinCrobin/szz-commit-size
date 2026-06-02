@@ -2,6 +2,7 @@ import argparse
 import json
 import logging as log
 import os
+import signal
 from time import time as ts
 
 import dateparser
@@ -26,6 +27,25 @@ log.getLogger('pydriller').setLevel(log.WARNING)
 
 
 SAVE_EVERY = 10
+
+# Timeout por fix (segundos). Se um unico fix travar (ex.: git blame patologico
+# num commit gigante), o alarme dispara, o fix e' pulado e o run continua.
+# Configure via env SZZ_FIX_TIMEOUT; 0 = desabilitado. So funciona em Unix
+# (SIGALRM); no Windows e' ignorado silenciosamente.
+FIX_TIMEOUT = int(os.environ.get("SZZ_FIX_TIMEOUT", "0"))
+_HAS_ALARM = hasattr(signal, "SIGALRM")
+
+
+class _FixTimeout(Exception):
+    pass
+
+
+def _alarm_handler(signum, frame):
+    raise _FixTimeout(f"fix excedeu SZZ_FIX_TIMEOUT={FIX_TIMEOUT}s")
+
+
+if FIX_TIMEOUT > 0 and _HAS_ALARM:
+    signal.signal(signal.SIGALRM, _alarm_handler)
 
 
 def _make_szz(szz_name: str, repo_name: str, repo_url: str, repos_dir: str):
@@ -134,13 +154,27 @@ def main(input_json: str, out_json: str, conf: Dict, repos_dir: str):
             # no NTFS, problemas de blame, etc). Sem isso, um unico fix problematico
             # mata o run inteiro — vide §7.5 de METODOLOGIA.md.
             try:
+                if FIX_TIMEOUT > 0 and _HAS_ALARM:
+                    signal.alarm(FIX_TIMEOUT)
                 bug_inducing_commits = _run_one(szz_inst, szz_name, fix_commit, conf, issue_date) or set()
                 log.info(f"result: {bug_inducing_commits}")
                 bugfix_commits[i]["inducing_commit_hash"] = [bic.hexsha for bic in bug_inducing_commits if bic]
+            except _FixTimeout as ex:
+                log.warning(f"FIX TIMEOUT {repo_name} {fix_commit}: {ex}")
+                bugfix_commits[i]["inducing_commit_hash"] = []
+                bugfix_commits[i]["szz_error"] = f"timeout: {str(ex)[:200]}"
+                # O blame foi interrompido no meio; o estado do git pode ter ficado
+                # inconsistente. Descarta a instancia para o proximo fix recriar do zero.
+                del szz_inst
+                szz_inst = None
+                current_repo = None
             except Exception as ex:
                 log.warning(f"FIX SKIPPED {repo_name} {fix_commit}: {type(ex).__name__}: {str(ex)[:160]}")
                 bugfix_commits[i]["inducing_commit_hash"] = []
                 bugfix_commits[i]["szz_error"] = f"{type(ex).__name__}: {str(ex)[:200]}"
+            finally:
+                if FIX_TIMEOUT > 0 and _HAS_ALARM:
+                    signal.alarm(0)
 
             if (i + 1) % SAVE_EVERY == 0:
                 with open(partial_path, 'w') as out:
