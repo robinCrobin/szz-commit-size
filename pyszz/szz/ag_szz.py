@@ -59,7 +59,9 @@ class AGSZZ(AbstractSZZ):
                     **kwargs
                 )
                 blame_data.update(blame_info)
-            except:
+            except Exception:
+                # NB: era `except:` pelado; trocado para nao engolir _FixTimeout
+                # (BaseException) e permitir o timeout por fix do main.py.
                 log.error(traceback.format_exc())
 
         return blame_data

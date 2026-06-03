@@ -36,7 +36,12 @@ FIX_TIMEOUT = int(os.environ.get("SZZ_FIX_TIMEOUT", "0"))
 _HAS_ALARM = hasattr(signal, "SIGALRM")
 
 
-class _FixTimeout(Exception):
+# Herda de BaseException (nao Exception) de proposito: o codigo do SZZ tem
+# blocos `except Exception` e ate `except:` pelados em volta do blame que
+# engoliriam um timeout comum, fazendo o fix moer pra sempre. Como BaseException,
+# o timeout atravessa esses handlers (os `except:` pelados do caminho do blame
+# foram trocados por `except Exception:` em ag_szz.py/b_szz.py) e chega ao main.
+class _FixTimeout(BaseException):
     pass
 
 

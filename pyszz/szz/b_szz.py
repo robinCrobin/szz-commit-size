@@ -47,7 +47,9 @@ class BaseSZZ(AbstractSZZ):
                     skip_comments=False
                 )
                 bic.update([entry.commit for entry in blame_data])
-            except:
+            except Exception:
+                # NB: era `except:` pelado; trocado para nao engolir _FixTimeout
+                # (BaseException) e permitir o timeout por fix do main.py.
                 log.error(traceback.format_exc())
 
         if kwargs.get('issue_date_filter', False):
