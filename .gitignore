@@ -73,6 +73,9 @@ szz_data/bugfix_commits_*.json
 # Parciais por lote (modo --no-merge); regeneraveis, consolidados por merge_lotes.py
 szz_data/parcial/
 
+# Backups com timestamp gerados antes de merges (regeneraveis)
+*.bak_*
+
 # Saídas do pySZZ (gerados em main.py)
 pyszz/out/
 pyszz/output_raszz.json
