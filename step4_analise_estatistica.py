@@ -339,7 +339,7 @@ def plot_pct_grande_vs_taxa_bic(df_repos: pd.DataFrame, rho: float, p_value: flo
     ax.set_ylabel("Taxa de bug-introducing no repositório (%)", fontsize=11)
     ax.set_title(
         f"Por repositório: frequência de commits grandes × taxa de BIC\n"
-        f"Spearman ρ = {rho:.3f}  (p = {p_value:.2e}, n={len(df_repos)})",
+        f"Spearman ρ = {rho:.3f}  (p = {p_value:.2e})",
         fontsize=12,
     )
     ax.grid(True, alpha=0.3)

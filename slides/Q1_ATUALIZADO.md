@@ -8,7 +8,7 @@
 > **REMOVER de todos os slides da Q1:** Mann-Whitney U, Cliff's Delta, boxplot de LOC,
 > gráfico CDF, "mediana 143 vs 23 LOC / 6,2×".
 >
-> **Base nova:** 305 repositórios · 1.398.933 commits · 29.035 BICs (2,0%).
+> **Base nova:** 460 repositórios · 1.850.512 commits · 45.031 BICs (2,4%).
 > (antes: 58 repos · 98.517 commits · 5.223 BICs 5,3%)
 >
 > **Gráficos novos** (já em `slides/`):
@@ -43,12 +43,12 @@ quem escreve e revisa, abrindo espaço para efeitos colaterais que passam desper
 ## Slide 13 — Contexto da amostra + análise  *(substituir números e testes)*
 
 **Texto:**
-Analisamos **1.398.933 commits** Python em **305 repositórios** do GitHub para verificar se
+Analisamos **1.850.512 commits** Python em **460 repositórios** do GitHub para verificar se
 o **tamanho do commit** (classes de Hattori & Lanza) está associado à introdução de bugs.
 
 **Caixas de destaque:**
-- **29.035 BICs (2,0%)**
-- **1.369.898 commits não bug-introducing**
+- **45.031 BICs (2,4%)**
+- **1.805.481 commits não bug-introducing**
 
 **Classes de tamanho (Hattori & Lanza, 2008):**
 - **Pequeno:** ≤ 5 arquivos **E** ≤ 25 LOC
@@ -64,16 +64,18 @@ o **tamanho do commit** (classes de Hattori & Lanza) está associado à introdu�
 
 ## Slide 14 — Exclusões + amostragem  *(atualizar)*
 
-**Repositórios excluídos** (incompatibilidade ou erros recorrentes de execução):
+**Repositórios excluídos** (incompatibilidade ou inviabilidade de execução/extração):
 `pytorch/pytorch` (NTFS case-insensitive), `Significant-Gravitas/AutoGPT`,
-`Genesis-Embodied-AI/genesis-world`, `ccxt/ccxt`, `ray-project/ray`.
+`NVIDIA/TensorRT-LLM` (deadlock no teardown após timeout), `ccxt/ccxt` (histórico
+grande estourou o timeout de extração). Além desses, **38 candidatos foram filtrados a
+priori por não serem código Python** (listas, livros, cheatsheets, skill packs — vide METODOLOGIA §7.5.3).
 
 **Amostragem:** cap de **100 fixes por repositório** (seed = 42) para equilibrar o peso dos
 projetos. *(Observação honesta: 5 repositórios históricos — django, scikit-learn, hermes-agent,
-MemPalace, EbookFoundation — ficaram sem cap, e o hermes-agent concentra ~4.4k fixes;
+MemPalace, EbookFoundation — ficaram sem cap, e o hermes-agent concentra ~4,4k fixes;
 limitação a declarar.)*
 
-**Impacto marginal:** cada repositório representa ~100 fixes sobre ~29 mil BICs totais.
+**Impacto marginal:** cada repositório representa ~100 fixes sobre ~45 mil BICs totais.
 
 ---
 
@@ -82,21 +84,21 @@ limitação a declarar.)*
 **Subtítulo:** A taxa de BIC cresce de forma monotônica com o tamanho do commit
 
 **Caixas de destaque (substituem 143 LOC / 23 LOC / 6,2×):**
-- **0,8%** — taxa de BIC nos commits **pequenos**
-- **2,6%** — taxa de BIC nos commits **médios**
-- **6,2%** — taxa de BIC nos commits **grandes**
-- **≈ 8×** — diferença entre grande e pequeno
+- **0,9%** — taxa de BIC nos commits **pequenos**
+- **3,1%** — taxa de BIC nos commits **médios**
+- **7,5%** — taxa de BIC nos commits **grandes**
+- **≈ 8,7×** — diferença entre grande e pequeno
 
 **Gráfico:** `q1_bug_rate_por_classe.png` *(substitui o boxplot antigo)*
 
 **Resultado do teste (rodapé):**
-**Cochran-Armitage: Z = 139,99 · p ≈ 0 → tendência crescente significativa** (Q1₀)
+**Cochran-Armitage: Z = 179,5 · p ≈ 0 → tendência crescente significativa** (Q1₀)
 
 | Classe | n | Taxa BIC | IC 95% (Wilson) | LOC mediana |
 |---|---:|---:|---|---:|
-| Pequeno | 721.714 | 0,75% | 0,74–0,78 | 6 |
-| Médio   | 519.444 | 2,64% | 2,60–2,69 | 72 |
-| Grande  | 157.775 | 6,25% | 6,13–6,37 | 476 |
+| Pequeno | 955.481 | 0,86% | 0,84–0,88 | 6 |
+| Médio   | 684.903 | 3,07% | 3,03–3,12 | 72 |
+| Grande  | 210.128 | 7,51% | 7,40–7,63 | 481 |
 
 ---
 
@@ -111,7 +113,7 @@ indica que o crescimento não é obra do acaso.
 
 **O que é χ² + Cramer's V?**
 O χ² testa se a **composição** de classes difere entre BICs e não-BICs. O Cramer's V mede a
-**força** dessa associação (0 = nenhuma, 1 = total). V = 0,12 → associação real, de magnitude
+**força** dessa associação (0 = nenhuma, 1 = total). V = 0,14 → associação real, de magnitude
 pequena, mas com direção clara: BICs se concentram em médio/grande.
 
 **O que é Spearman ρ?**
@@ -127,49 +129,47 @@ Mede se duas variáveis crescem juntas (positivo) ou em sentidos opostos (negati
 > ❌ **REMOVER** "Mann-Whitney U → p < 10⁻⁵⁰", "Cliff's Delta = 0,48" e o gráfico CDF.
 
 **Destaques:**
-- **χ² = 20.542 · gl = 2 · p ≈ 0 · Cramer's V = 0,12** (Q1a)
+- **χ² = 34.021 · gl = 2 · p ≈ 0 · Cramer's V = 0,14** (Q1a)
 
 **Composição de cada grupo:**
-- **Grupo A (BIC):** 18,8% pequeno · 47,3% médio · **34,0% grande**
-- **Grupo B (não-BIC):** 52,3% pequeno · 36,9% médio · **10,8% grande**
+- **Grupo A (BIC):** 18,2% pequeno · 46,8% médio · **35,1% grande**
+- **Grupo B (não-BIC):** 52,5% pequeno · 36,8% médio · **10,8% grande**
 
 **Gráfico:** `q1_distribuicao_classes_por_grupo.png`
 
-**Leitura:** entre os BICs, 1 em cada 3 é grande; entre os não-BICs, só 1 em cada 10.
+**Leitura:** entre os BICs, ~1 em cada 3 é grande; entre os não-BICs, ~1 em cada 9.
 
 ---
 
-## Slide 18 — Spearman por repositório  *(substituir números — atenção: resultado mudou!)*
+## Slide 18 — Spearman por repositório  *(substituir números)*
 
 **Destaques (substituem ρ=0,36 / p=0,006):**
-- **ρ = 0,056** — correlação de Spearman
-- **p = 0,33** — **NÃO significativo** (n = 305 repositórios)
+- **ρ = 0,135** — correlação de Spearman
+- **p = 0,0038** — significativo, porém **fraco** (n = 460 repositórios)
 
 **Gráfico:** `q1_pct_grande_vs_taxa_bic.png` *(substitui o scatter antigo)*
 
-**Leitura (importante, ser honesto):**
-Diferente dos 58 repositórios iniciais (onde era ρ = 0,36, p = 0,006), ao ampliar a amostra
-para 305 repositórios a correlação **a nível de projeto** desaparece. O efeito é robusto
-**a nível de commit** (agregado), mas a *proporção* de commits grandes de um repositório não
-prevê bem a taxa de bugs **dele**.
+**Leitura (ser honesto sobre a magnitude):**
+A nível de repositório existe uma correlação positiva e **estatisticamente significativa**
+(p = 0,0038), mas de magnitude **fraca** (ρ ≈ 0,13): repositórios com maior proporção de
+commits grandes tendem a ter taxa de BIC um pouco maior. O efeito por projeto é muito mais
+sutil que o efeito por commit.
 
 ---
 
-## Slide 19 — Conclusão  *(reescrever — a conclusão antiga não vale mais)*
+## Slide 19 — Conclusão  *(reescrever)*
 
-> ❌ **REMOVER** a conclusão antiga ("6,2× maior… Cliff's Delta 0,48… ρ=0,36 o padrão se
-> repete no nível dos projetos"). O resultado por projeto **inverteu**.
+> ❌ **REMOVER** a conclusão antiga ("6,2× maior… Cliff's Delta 0,48… ρ=0,36").
 
-**Hipótese parcialmente comprovada (forte a nível de commit):**
+**Hipótese comprovada (forte por commit, fraca por projeto):**
 
-- ✅ **A nível de commit/agregado:** a taxa de BIC cresce de 0,8% (pequeno) para 6,2%
-  (grande) — razão ≈ 8× — com tendência significativa (Cochran-Armitage Z = 140, p ≈ 0)
-  e associação confirmada entre classe e grupo (χ², p ≈ 0; Cramer's V = 0,12).
+- ✅ **A nível de commit/agregado:** a taxa de BIC cresce de 0,9% (pequeno) para 7,5%
+  (grande) — razão ≈ 8,7× — com tendência significativa (Cochran-Armitage Z = 179,5, p ≈ 0)
+  e associação confirmada entre classe e grupo (χ², p ≈ 0; Cramer's V = 0,14).
 
-- ⚠️ **A nível de projeto:** a correlação entre % de commits grandes e taxa de BIC por
-  repositório **não é significativa** (Spearman ρ = 0,06, p = 0,33). Ao ampliar de 58 para
-  305 repositórios o efeito por projeto se diluiu.
+- ➖ **A nível de projeto:** a correlação entre % de commits grandes e taxa de BIC por
+  repositório é significativa, mas **fraca** (Spearman ρ = 0,13, p = 0,0038, n = 460).
 
 **Conclusão:** commits maiores têm, individualmente, probabilidade substancialmente maior de
-introduzir bugs; porém isso **não se traduz** em "repositórios com mais commits grandes têm
-mais bugs". O efeito é do **commit**, não do **projeto**.
+introduzir bugs (efeito forte e claro). Esse padrão também aparece entre projetos, porém de
+forma bem mais tênue — o sinal é predominantemente do **commit**, não do **projeto**.

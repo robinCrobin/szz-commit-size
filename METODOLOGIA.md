@@ -254,7 +254,7 @@ Seguindo a taxonomia de **Wohlin et al. (2012)**:
 
 - **Apenas Python**, apenas **GitHub**, apenas **projetos populares**. Generalizações para outras linguagens, ecossistemas (npm, Maven privados) ou enterprise software requerem estudos adicionais.
 - **Janela temporal**: analisamos o histórico completo dos repositórios; mudanças em práticas de engenharia ao longo dos anos podem afetar o sinal (estilos de commit modernos vs antigos).
-- **Repositórios excluídos por incompatibilidade de execução**: 2 dos 60 repositórios originais ficaram fora da análise final — `pytorch/pytorch` (incompatibilidade NTFS/case-sensitivity em Windows) e `Significant-Gravitas/AutoGPT` (erros recorrentes do SZZ). Detalhes em §7.5. O universo efetivo é portanto **58 repositórios**.
+- **Repositórios fora da análise**: dos **500** candidatos populares, **38** foram filtrados a priori por **não serem código Python** (listas curadas, cheatsheets, livros, skill packs, hosts files — vide §7.5.3) e **2** foram excluídos por **inviabilidade de execução/extração** (`pytorch/pytorch`, `Significant-Gravitas/AutoGPT`, e na expansão `NVIDIA/TensorRT-LLM`, `ccxt/ccxt` — §7.5.1, §7.5.2 e §7.5.4). O universo efetivo é de **460 repositórios**.
 
 ### 5.3 Validade de constructo
 
@@ -387,7 +387,33 @@ warning: Clone succeeded, but checkout failed.
 
 Ambos foram **excluídos da análise** após autorização explícita ("se continuar dando muito erro, apenas anote que esse repositório apresentou problemas e vai ser deixado fora da análise"). Tentativas de contornar problemas de filesystem (habilitar `core.protectNTFS=false`, migrar para WSL) foram avaliadas e rejeitadas pelo custo-benefício, dado que (a) cada repo excluído representa 100 fixes amostrados — perda marginal sobre 10.000+ fixes totais, e (b) a hipótese é robusta o suficiente para que perdas pontuais não comprometam a inferência.
 
-**Limitação declarada.** Os 2 repositórios excluídos representam uma **limitação de validade externa**: em sistemas Linux/macOS (case-sensitive por padrão), pytorch seria processado normalmente. Esta limitação é citada na §5.2. O universo final efetivamente analisado é de **58 repositórios** (de 60 originais).
+**Limitação declarada.** Os 2 repositórios excluídos representam uma **limitação de validade externa**: em sistemas Linux/macOS (case-sensitive por padrão), pytorch seria processado normalmente. Esta limitação é citada na §5.2.
+
+#### 7.5.3 Repositórios filtrados por não serem projetos de código Python
+
+Na fase de expansão do estudo, o universo de candidatos foi a lista dos **500 repositórios Python mais populares** do GitHub (`repos_python_populares.csv`). Nem todos, porém, são *software* em Python: muitos dos repositórios mais "estrelados" da plataforma são, na verdade, **conteúdo curado** — listas, materiais de estudo e coleções — que apenas estão classificados sob a linguagem Python pelo GitHub ou que não contêm código Python analisável.
+
+Como o SZZ deste estudo opera **exclusivamente sobre arquivos `.py`** (`file_ext_to_parse: ["py"]`, vide §7.4), rodá-lo sobre esses repositórios seria metodologicamente vazio: ou não há arquivos Python para fazer *blame*, ou o histórico não corresponde a desenvolvimento de software (são commits de documentação/dados gerados automaticamente). Por isso, **38 repositórios foram filtrados a priori** na geração dos lotes (`gerar_lotes.py`, lista `PADROES_SKIP`), por casarem com padrões de conteúdo não-código. As categorias:
+
+- **Listas curadas / "awesome"**: `public-apis/public-apis`, `RunaCapital/awesome-oss-alternatives`, `rossant/awesome-math`, `hesreallyhim/awesome-claude-code`, `github/awesome-copilot`, `LiLittleCat/awesome-free-chatgpt`.
+- **Cheatsheets / quizzes / exercícios**: `gto76/python-cheatsheet`, `OWASP/CheatSheetSeries`, `bregman-arie/devops-exercises`, `Ebazhanov/linkedin-skill-assessments-quizzes`, `satwikkansal/wtfpython`.
+- **Livros / materiais de estudo**: `Vonng/ddia`, `harvard-edge/cs249r_book`, `stas00/ml-engineering`, `0xAX/linux-insides`, `charlax/professional-programming`, `andkret/Cookbook`.
+- **Skill packs / templates de agentes** (não-código): `openai/skills`, `agentskills/agentskills`, `alirezarezvani/claude-skills`, `davila7/claude-code-templates`, `muratcankoylan/Agent-Skills-for-Context-Engineering`, `mvanhorn/last30days-skill`, `K-Dense-AI/scientific-agent-skills`, `Imbad0202/academic-research-skills`, `sickn33/antigravity-awesome-skills`, `Alishahryar1/free-claude-code`, `luongnv89/claude-howto`.
+- **Outros não-código**: `StevenBlack/hosts` (arquivo hosts), `edent/SuperTinyIcons` (SVG), `ungoogled-software/ungoogled-chromium` (patches C++), `521xueweihan/HelloGitHub`, `emmabostian/developer-portfolios`, `timqian/chinese-independent-blogs`, `cheahjs/free-llm-api-resources`, `ymcui/Chinese-LLaMA-Alpaca`, `EbookFoundation/free-programming-books`.
+
+A esses somam-se os **2 hard-excludes** por incompatibilidade de execução (§7.5.1–7.5.2, `pytorch/pytorch` e `Significant-Gravitas/AutoGPT`), totalizando **38 repositórios fora da análise por não serem código Python processável ou por incidente prévio**.
+
+#### 7.5.4 Repositórios excluídos por inviabilidade de extração (expansão 2026-06)
+
+Dois repositórios, embora elegíveis, **não puderam ser extraídos** e ficaram fora do universo final:
+
+- **`NVIDIA/TensorRT-LLM`**: após o disparo do `SZZ_FIX_TIMEOUT` (20 min) em um *fix* com *blame* patológico, o `del szz_inst` deadlockou no teardown do GitPython (subprocesso de blame interrompido pelo SIGALRM), pendurando o processo por horas. Excluído pelo mesmo critério de §7.5.2.
+- **`ccxt/ccxt`**: o `git log --numstat --all` excedeu o timeout de extração (600 s) por causa do histórico gigante; nenhum commit pôde ser coletado. Excluído por decisão custo-benefício (1 repo sobre 460).
+- *(`SimplifyJobs/Summer2026-Internships` também estourou a extração, mas é repo não-código — listagem de vagas em markdown — e pertence conceitualmente ao grupo de §7.5.3.)*
+
+Detalhes operacionais desses incidentes estão registrados em `logs/ERROS_LOTES.md`.
+
+**Universo final.** Dos 500 candidatos: **460 repositórios analisados**, 38 filtrados como não-código/incidente prévio e 2 excluídos por inviabilidade de extração (`460 + 38 + 2 = 500`). Esta limitação de validade externa é citada na §5.2.
 
 ### 7.6 Recuperação após o crash
 
