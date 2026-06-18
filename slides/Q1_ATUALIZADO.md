@@ -135,7 +135,7 @@ Mede se duas variáveis crescem juntas (positivo) ou em sentidos opostos (negati
 - **Grupo A (BIC):** 18,2% pequeno · 46,8% médio · **35,1% grande**
 - **Grupo B (não-BIC):** 52,5% pequeno · 36,8% médio · **10,8% grande**
 
-**Gráfico:** `q1_distribuicao_classes_por_grupo.png`
+**Tabela:** `q1_distribuicao_classes_por_grupo.png` *(contagens + % dentro de cada grupo)*
 
 **Leitura:** entre os BICs, ~1 em cada 3 é grande; entre os não-BICs, ~1 em cada 9.
 
