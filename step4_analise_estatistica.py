@@ -221,87 +221,51 @@ def repo_class_summary(df: pd.DataFrame) -> pd.DataFrame:
 # ─────────────────────────────────────────────
 
 def plot_bug_rate_por_classe(df_classes: pd.DataFrame):
-    """Bar chart: % de BIC em cada classe, com IC 95% Wilson."""
-    fig, ax = plt.subplots(figsize=(8.5, 5.5))
+    """
+    Tabela: taxa de BIC em cada classe de tamanho, com IC 95% Wilson,
+    total de commits e numero de BICs. Linha de total ao final.
+    """
+    # Indexa por classe para percorrer na ordem ordinal.
+    por_classe = {r["classe"]: r for _, r in df_classes.iterrows()}
 
-    x       = np.arange(len(df_classes))
-    taxas   = df_classes["taxa_bic_pct"].values
-    err_lo  = taxas - df_classes["ic95_lo_pct"].values
-    err_hi  = df_classes["ic95_hi_pct"].values - taxas
-    ns      = df_classes["n_total"].values
-    bics    = df_classes["n_bic"].values
-    classes = df_classes["classe"].tolist()
+    col_labels = ["Classe", "Taxa BIC (IC 95% Wilson)", "Commits (n)", "BICs"]
+    linhas = []
+    tot_n = tot_bic = 0
+    for classe in ORDEM_CLASSES:
+        r = por_classe[classe]
+        n, bic = int(r["n_total"]), int(r["n_bic"])
+        taxa, lo, hi = float(r["taxa_bic_pct"]), float(r["ic95_lo_pct"]), float(r["ic95_hi_pct"])
+        tot_n += n
+        tot_bic += bic
+        linhas.append([
+            ROTULOS_CLASSES[classe],
+            f"{taxa:.2f}%  ({lo:.2f}–{hi:.2f})",
+            f"{n:,}".replace(",", "."),
+            f"{bic:,}".replace(",", "."),
+        ])
+    taxa_total = tot_bic / tot_n * 100
+    linhas.append([
+        "Total",
+        f"{taxa_total:.2f}%",
+        f"{tot_n:,}".replace(",", "."),
+        f"{tot_bic:,}".replace(",", "."),
+    ])
 
-    bars = ax.bar(
-        x, taxas, yerr=[err_lo, err_hi],
-        color=[CORES_CLASSES[c] for c in classes],
-        edgecolor="black", linewidth=0.6,
-        capsize=8, error_kw=dict(elinewidth=1.2, ecolor="#333"),
-    )
-    for i, bar in enumerate(bars):
-        h = bar.get_height()
-        ax.text(
-            bar.get_x() + bar.get_width() / 2,
-            h + err_hi[i] + max(taxas) * 0.02,
-            f"{taxas[i]:.1f}%\n(n={ns[i]:,}; BIC={bics[i]:,})",
-            ha="center", va="bottom", fontsize=9,
-        )
-
-    ax.set_xticks(x)
-    ax.set_xticklabels([ROTULOS_CLASSES[c] for c in classes], fontsize=10)
-    ax.set_ylabel("% de commits bug-introducing (IC 95% Wilson)", fontsize=11)
+    fig, ax = plt.subplots(figsize=(10, 3.6))
+    ax.axis("off")
     ax.set_title(
         "Taxa de bug-introducing por classe de tamanho do commit\n"
         "(Hattori & Lanza, 2008 — limiares bidimensionais arquivos × LOC)",
-        fontsize=12,
-    )
-    ax.set_ylim(0, max(taxas + err_hi) * 1.35)
-    ax.grid(True, axis="y", alpha=0.3)
-
-    plt.tight_layout()
-    path = os.path.join(OUTPUT_DIR, "bug_rate_por_classe.png")
-    plt.savefig(path, dpi=300, bbox_inches="tight")
-    plt.close()
-    print(f"  Grafico salvo: {path}")
-
-
-def plot_distribuicao_classes_por_grupo(df_dist: pd.DataFrame):
-    """
-    Tabela de dupla entrada (classe x grupo): dentro do Grupo A (BIC) e do
-    Grupo B (nao-BIC), a contagem e a porcentagem de pequeno/medio/grande.
-    Deixa visivel que commits BIC concentram em medio/grande.
-    """
-    grupos = df_dist["grupo"].unique().tolist()
-
-    # Monta as linhas (uma por classe, na ordem ordinal) + linha de total.
-    col_labels = ["Classe"] + grupos
-    linhas = []
-    totais = {g: 0 for g in grupos}
-    for classe in ORDEM_CLASSES:
-        celulas = [ROTULOS_CLASSES[classe].replace("\n", " ")]
-        for g in grupos:
-            sub = df_dist[(df_dist["grupo"] == g) & (df_dist["classe"] == classe)].iloc[0]
-            n, pct = int(sub["n"]), float(sub["pct_dentro_grupo"])
-            totais[g] += n
-            celulas.append(f"{n:,}".replace(",", ".") + f"  ({pct:.1f}%)")
-        linhas.append(celulas)
-    linhas.append(["Total"] + [f"{totais[g]:,}".replace(",", ".") + "  (100%)" for g in grupos])
-
-    fig, ax = plt.subplots(figsize=(9, 3.2))
-    ax.axis("off")
-    ax.set_title(
-        "Distribuição das classes de tamanho dentro de cada grupo\n"
-        "(Bug-Introducing vs Não Bug-Introducing)",
         fontsize=12, pad=12,
     )
 
     tabela = ax.table(cellText=linhas, colLabels=col_labels,
+                      colWidths=[0.26, 0.30, 0.24, 0.20],
                       cellLoc="center", colLoc="center", loc="center")
     tabela.auto_set_font_size(False)
     tabela.set_fontsize(10)
-    tabela.scale(1, 1.6)
+    tabela.scale(1, 2.2)
 
-    n_cols = len(col_labels)
     for (row, col), cell in tabela.get_celld().items():
         cell.set_edgecolor("black")
         cell.set_linewidth(0.5)
@@ -315,10 +279,60 @@ def plot_distribuicao_classes_por_grupo(df_dist: pd.DataFrame):
             cell.set_facecolor(CORES_CLASSES[ORDEM_CLASSES[row - 1]])
             cell.set_text_props(fontweight="bold")
 
-    path = os.path.join(OUTPUT_DIR, "distribuicao_classes_por_grupo.png")
+    path = os.path.join(OUTPUT_DIR, "bug_rate_por_classe.png")
     plt.savefig(path, dpi=300, bbox_inches="tight")
     plt.close()
     print(f"  Tabela salva: {path}")
+
+
+def plot_distribuicao_classes_por_grupo(df_dist: pd.DataFrame):
+    """
+    Barras agrupadas: dentro do Grupo A (BIC) e Grupo B (nao-BIC),
+    qual a porcentagem de pequeno/medio/grande.
+    Deixa visivel que commits BIC concentram em medio/grande.
+    """
+    fig, ax = plt.subplots(figsize=(9, 5.5))
+
+    grupos     = df_dist["grupo"].unique().tolist()
+    x          = np.arange(len(grupos))
+    largura    = 0.26
+
+    for i, classe in enumerate(ORDEM_CLASSES):
+        valores = [
+            float(df_dist[(df_dist["grupo"] == g) & (df_dist["classe"] == classe)]["pct_dentro_grupo"].iloc[0])
+            for g in grupos
+        ]
+        offsets = x + (i - 1) * largura
+        bars = ax.bar(
+            offsets, valores, width=largura,
+            color=CORES_CLASSES[classe],
+            edgecolor="black", linewidth=0.5,
+            label=ROTULOS_CLASSES[classe].replace("\n", " "),
+        )
+        for bar, val in zip(bars, valores):
+            ax.text(
+                bar.get_x() + bar.get_width() / 2,
+                bar.get_height() + 1,
+                f"{val:.1f}%", ha="center", va="bottom", fontsize=9,
+            )
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(grupos, fontsize=10)
+    ax.set_ylabel("% de commits dentro do grupo", fontsize=11)
+    ax.set_title(
+        "Distribuição das classes de tamanho dentro de cada grupo\n"
+        "(Bug-Introducing vs Não Bug-Introducing)",
+        fontsize=12,
+    )
+    ax.set_ylim(0, 100)
+    ax.legend(loc="upper right", fontsize=9)
+    ax.grid(True, axis="y", alpha=0.3)
+
+    plt.tight_layout()
+    path = os.path.join(OUTPUT_DIR, "distribuicao_classes_por_grupo.png")
+    plt.savefig(path, dpi=300, bbox_inches="tight")
+    plt.close()
+    print(f"  Grafico salvo: {path}")
 
 
 def plot_pct_grande_vs_taxa_bic(df_repos: pd.DataFrame, rho: float, p_value: float):

@@ -89,7 +89,7 @@ limitação a declarar.)*
 - **7,5%** — taxa de BIC nos commits **grandes**
 - **≈ 8,7×** — diferença entre grande e pequeno
 
-**Gráfico:** `q1_bug_rate_por_classe.png` *(substitui o boxplot antigo)*
+**Tabela:** `q1_bug_rate_por_classe.png` *(taxa de BIC + IC 95% Wilson, n e BICs por classe)*
 
 **Resultado do teste (rodapé):**
 **Cochran-Armitage: Z = 179,5 · p ≈ 0 → tendência crescente significativa** (Q1₀)
@@ -135,7 +135,7 @@ Mede se duas variáveis crescem juntas (positivo) ou em sentidos opostos (negati
 - **Grupo A (BIC):** 18,2% pequeno · 46,8% médio · **35,1% grande**
 - **Grupo B (não-BIC):** 52,5% pequeno · 36,8% médio · **10,8% grande**
 
-**Tabela:** `q1_distribuicao_classes_por_grupo.png` *(contagens + % dentro de cada grupo)*
+**Gráfico:** `q1_distribuicao_classes_por_grupo.png` *(barras: composição % dentro de cada grupo)*
 
 **Leitura:** entre os BICs, ~1 em cada 3 é grande; entre os não-BICs, ~1 em cada 9.
 
